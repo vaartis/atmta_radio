@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Radio Atnta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+    <style>
+      body {
+          background: #1d1e20;
+          box-sizing: border-box;
+          padding-top: 150px;
+          padding-bottom: 50px;
+          font-family: arial;
+          min-width: 960px;
+          width: 500px;
+          margin: 0 auto;
+      }
+
+      .intro {
+          font-size: 30px;
+          position: absolute;
+          top: 60px;
+          left: 140px;
+          color: #fff;
+      }
+      .intro span {
+          font-size: 15px;
+          color: #00ffd4;
+      }
+
+      ul {
+          user-select: none;
+      }
+      ul .name {
+          width: 85px;
+          height: 20px;
+          line-height: 20px;
+          text-align: right;
+          padding-right: 5px;
+          margin-right: 5px;
+          margin-left: 10px;
+          box-sizing: border-box;
+          color: #ffffff;
+          float: left;
+          cursor: default;
+          font-size: 12px;
+          background: transparent;
+          border: 0;
+          outline: 0;
+          transition: .3s;
+          border-radius: 2px;
+      }
+      ul input:hover {
+          background: #333333 !important;
+          cursor: auto !important;
+      }
+
+      .timeline {
+          width: 100%;
+          height: 20px;
+          margin-bottom: 14px;
+      }
+      .timeline li {
+          display: block;
+          float: left;
+          width: 27px;
+          height: 20px;
+          background: #fd3e81;
+          color: #ffffff;
+          font-size: 12px;
+          text-align: center;
+          line-height: 20px;
+          margin-right: 3px;
+          user-select: none;
+          cursor: default;
+          border-radius: 2px;
+      }
+
+      .thing {
+          width: 100%;
+          height: 20px;
+          margin-bottom: 4px;
+          animation: load .5s ease-in;
+      }
+      .thing li {
+          display: block;
+          float: left;
+          width: 7px;
+          height: 20px;
+          background: #333333;
+          text-align: center;
+          margin-right: 0px;
+          border-right: 3px solid #1d1e20;
+          cursor: pointer;
+          border-radius: 0px;
+          transition: .3s;
+      }
+      .thing li:hover {
+          opacity: .5;
+      }
+      .thing .remove {
+          color: #ffffff;
+          font-size: 12px;
+          height: 20px;
+          line-height: 20px;
+          cursor: pointer;
+          padding: 0 10px;
+          margin-left: 5px;
+          background: #fd3e81;
+          display: block;
+          float: left;
+          border-radius: 2px;
+          opacity: .2;
+          transition: .3s;
+          user-select: none;
+      }
+      .thing .remove:hover {
+          opacity: 1;
+      }
+
+      @keyframes load {
+          from {
+              opacity: 0;
+          }
+      }
+      .template {
+          display: none;
+      }
+
+      .addThing {
+          color: #ffffff;
+          font-size: 12px;
+          width: 716px;
+          transition: .3s;
+          margin-left: 100px;
+          text-align: center;
+          border-radius: 2px;
+          height: 30px;
+          line-height: 30px;
+          margin-top: 15px;
+          cursor: pointer;
+      }
+      .addThing:hover {
+          background: #333333;
+      }
+
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <h1 class="intro">
+	  Radio Atmta
+	  <span>Расписание</span>
+    </h1>
+    <center>
+
+      <ul class="timeline">
+		<div class="name">Часы</div>
+        {{#hours}}
+            <li>{{.}}</li>
+        {{/hours}}
+      </ul>
+      <ul class="thing template">
+		<input type="text" class="name" value="Example">
+        {{#bars}}
+            <li></li>
+        {{/bars}}
+		<div class="remove">Delete</div>
+      </ul>
+      <div class="things">
+        <input type="text" class="name" value="Sample Name">
+        <ul class="thing" value="#2AD33F">
+          {{#bars}}
+          <li class="active" style="background: rgb(42, 211, 63);"></li>
+          {{/bars}}
+          <div class="remove">Delete</div>
+        </ul>
+      </div>
+      <div class="addThing">
+        Добавить
+      </div>
+
+      <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+      <script src="js/index.js"></script>
+	  <div id="radioheart-player"
+           class="panel-black"
+           data-stream="http://a2.radioheart.ru:8019/ATMTA"
+           data-autostart="true"
+           data-volume="0.5"
+           data-logo="https://pp.userapi.com/c837621/v837621228/453ca/WUh1cgmcad4.jpg"
+           >
+        <div class="player-wrapper">
+          <div class="logo" id="radioheart-player-logo" title=""></div>
+          <div class="controls">
+            <div class="play" id="radioheart-player-play">
+              <i class="fa fa-play"></i>
+            </div>
+            <div class="pause hidden" id="radioheart-player-pause">
+              <i class="fa fa-stop"></i>
+            </div>
+          </div>
+          <div class="current-song marquee"
+               id="radioheart-player-current-song"
+               data-marquee=""
+               >
+          </div>
+          <div class="sound-control">
+            <div class="mute-control">
+              <div class="mutecontrol active" id="radioheart-player-mute"></div>
+            </div>
+            <div class="volume-control">
+              <div class="volume" id="radioheart-player-volume"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="http://player.radioheart.ru/js/app.js"></script>
+      <link type="text/css" rel="stylesheet" href="http://player.radioheart.ru/css/app.css">
+
+  </body>
+</html>

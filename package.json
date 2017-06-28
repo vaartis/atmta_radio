@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "express": "^4.15.3",
+    "lodash": "^4.17.4",
+    "mustache": "^2.3.0"
+  },
+  "name": "atmta_radio",
+  "version": "0.0.1",
+  "main": "src/main.js",
+  "devDependencies": {}
+}
