@@ -8,5 +8,8 @@
   "name": "atmta_radio",
   "version": "0.0.1",
   "main": "src/main.js",
-  "devDependencies": {}
+  "devDependencies": {},
+  "scripts": {
+    "start": "node src/main.js"
+  }
 }
