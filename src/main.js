@@ -5,20 +5,10 @@ const fs = require("fs"),
       app = express(),
       mustacheExpress = require("mustache-express"),
       co = require("co"),
-      MongoClient = require("mongodb").MongoClient,
-      s = require("./schedule.js")
+      MongoClient = require("mongodb").MongoClient
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8')),
       shedule_file = process.cwd() + "/json/shedule.json"
-
-var shed = fs.readFile(shedule_file, {encoding: 'utf-8'}, function(err, data){
-    if (err) {
-        // s.createDefaultFile()
-        console.error(err)
-    } else {
-        s.shedule = JSON.parse(data)
-    }
-})
 
 app.use("/js", express.static("js"))
 app.use("/css", express.static("css"))
@@ -51,7 +41,7 @@ app.get("/", (req,res) => {
                 day.bars = _.map(Array(72), (_el, i) => {
                     for (num of barNums) {
                         if (num == i)
-                            return Array.join(day.barsColor)
+                            return day.barsColor.join()
                     }
                 })
                 return day;
