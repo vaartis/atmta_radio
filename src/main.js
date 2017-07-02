@@ -1,22 +1,69 @@
 const fs = require("fs"),
-      express = require("express"),
       mustache = require("mustache"),
       _ = require("underscore"),
-      app = express(),
-      mustacheExpress = require("mustache-express"),
       co = require("co"),
-      MongoClient = require("mongodb").MongoClient
+      MongoClient = require("mongodb").MongoClient,
+      bcrypt = require("bcrypt"),
+      rstring = require("randomstring"),
+
+      express = require("express"),
+      expressSession = require("express-session"),
+      MongoDBStore = require('connect-mongodb-session')(expressSession),
+      mustacheExpress = require("mustache-express"),
+      bodyParser = require('body-parser')
+
+const app = express()
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8')),
       shedule_file = process.cwd() + "/json/shedule.json"
 
 app.use("/js", express.static("js"))
 app.use("/css", express.static("css"))
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(expressSession({
+    "store": new MongoDBStore({
+        "uri": `mongodb://${config.login}:${config.pass}@localhost/radio`,
+        "collection": "sessions"
+    }),
+    "secret": config.sessionSecret,
+    "resave": false,
+    "saveUninitialized": false
+}))
 app.engine("html", mustacheExpress())
 app.set("view engine", "html")
 app.set("views", "html");
 
+app.get("/register", (req,res) => {
+    res.render("register")
+})
+
+app.post("/register", (req,res) => {
+    let {name, pass, invite} = req.body
+    bcrypt.hash(pass, 10).then(hash => {
+        co(function*() {
+            var db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
+
+            let obj = yield db.collection("rjs").findOne({invite})
+
+            if (obj == null)
+                res.send("Несуществующий инвайт")
+            else if (obj.name != null) {
+                res.send("Инвайт уже использован")
+            } else {
+                if ((yield db.collection("rjs").count({name})) == 0 ) {
+                    yield db.collection("rjs").findOneAndUpdate({invite}, {"$set": {name, pass: hash}})
+                    req.session.name = name;
+                    res.redirect("/")
+                } else {
+                    return new Error(`Имя ${name} занято`)
+                }
+            }
+        })
+    }).catch(err => console.log(err.stack))
+})
+
 app.get("/", (req,res) => {
+    console.log(req.session.name)
     co(function*() {
         var db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
 
@@ -54,6 +101,17 @@ app.get("/", (req,res) => {
     }).catch(err => console.log(err.stack))
 })
 
-app.listen(config.port, () => {
+if (process.argv.length > 2) {
+    if (process.argv[2] == "invite") {
+        co(function*() {
+            var db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
+            let invite = rstring.generate(50)
 
-})
+            yield db.collection("rjs").insertOne({invite})
+            console.log(invite)
+            process.exit()
+        })
+    }
+} else {
+    app.listen(config.port)
+}
