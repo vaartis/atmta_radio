@@ -33,15 +33,54 @@ app.engine("html", mustacheExpress())
 app.set("view engine", "html")
 app.set("views", "html");
 
+app.get("/logout", (req,res) => {
+    delete req.session.name
+    res.redirect("/")
+})
+
+app.get("/login", (req,res) => {
+    if (typeof req.session.name != 'undefined') {
+        res.redirect("/")
+    } else {
+        res.render("login")
+    }
+})
+
+app.post("/login", (req,res) => {
+    let {name,pass} = req.body
+    co(function*() {
+        let db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
+
+        let assumedUser = yield db.collection("rjs").findOne({"name": {"$regex": new RegExp(`^${name}$`, "i")}})
+
+        if (assumedUser == null) {
+            res.send("Несуществующий пользователь")
+        } else {
+            bcrypt.compare(pass, assumedUser.pass).then(isIt => {
+                if (isIt) {
+                    req.session.name = assumedUser.name;
+                    res.redirect("/")
+                } else {
+                    res.send("Неверный пароль")
+                }
+            }).catch(err => console.log(err.stack))
+        }
+    })
+})
+
 app.get("/register", (req,res) => {
-    res.render("register")
+    if (typeof req.session.name != 'undefined') {
+        res.redirect("/")
+    } else {
+        res.render("register")
+    }
 })
 
 app.post("/register", (req,res) => {
     let {name, pass, invite} = req.body
     bcrypt.hash(pass, 10).then(hash => {
         co(function*() {
-            var db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
+            let db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
 
             let obj = yield db.collection("rjs").findOne({invite})
 
@@ -63,7 +102,6 @@ app.post("/register", (req,res) => {
 })
 
 app.get("/", (req,res) => {
-    console.log(req.session.name)
     co(function*() {
         var db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
 
@@ -104,7 +142,7 @@ app.get("/", (req,res) => {
 if (process.argv.length > 2) {
     if (process.argv[2] == "invite") {
         co(function*() {
-            var db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
+            let db = yield MongoClient.connect(`mongodb://${config.login}:${config.pass}@localhost/radio`)
             let invite = rstring.generate(50)
 
             yield db.collection("rjs").insertOne({invite})
